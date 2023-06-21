@@ -65,5 +65,6 @@ void
 mux_inplace(Ciphertext &sample_c0, Ciphertext &sample_c1, GSWCiphertext choice_bit, shared_ptr<SEALContext> context,
             const int l, const int base_bit, Evaluator &eval);
 
+void gen_keyword_params(uint64_t ele_num, uint64_t ele_size, uint32_t N, uint64_t plaintext_num, uint64_t logt, PirParams &pir_params);
 
 #endif //EXTERNAL_PROD_PIR_H

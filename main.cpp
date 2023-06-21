@@ -15,6 +15,9 @@
 #include "pir.h"
 #include "pir_server.h"
 #include "pir_client.h"
+#include "cuckoo.h"
+#include "keyword_pir_client.h"
+#include "keyword_pir_server.h"
 
 
 using namespace std;
@@ -893,7 +896,19 @@ void test_seal(Evaluator &evaluator1, Encryptor &encryptor1, Decryptor &decrypto
 //    return 0;
 //}
 
+/*
 int main(){
+    int n = 100000;
+    std::vector<int> keywords;
+    for (int i = 1 ; i < n; i++) {
+        keywords.push_back(i);
+    }
+    CuckooHashTable tb(keywords);
+    // tb.print_table();
+    std::cout << tb.get(4).first << ", " << tb.get(4).second << std::endl;
+    std::cout << tb.get(1).first << ", " << tb.get(1).second << std::endl;
+    std::cout << tb.get(7).first << ", " << tb.get(7).second << std::endl;
+    
 
     uint64_t number_of_items = 1<<14;
     uint64_t size_per_item = 30000; // in bytes
@@ -1017,4 +1032,64 @@ int main(){
     //cout << "Main: Reply num ciphertexts: " << reply.size() << endl;
 
     return 0;
+}
+*/
+
+int main(){
+    uint64_t number_of_items = 500;
+    uint64_t size_per_item = 100; // in bytes
+    uint32_t N = 4096;
+
+    // Recommended values: (logt, d) = (12, 2) or (8, 1).
+    uint32_t logt = 60;
+    PirParams pir_params;
+
+    EncryptionParameters parms(scheme_type::BFV);
+    set_bfv_parms(parms);
+    gen_keyword_params( number_of_items,  size_per_item, N, 1000, logt,
+                pir_params);
+    cout << "Main: Initializing the database (this may take some time) ..." << endl;
+
+    // Create test database
+    std::vector<std::pair<int, std::vector<std::uint8_t>>> entries;
+    for (int i = 0; i < number_of_items; i++){
+        std::pair<int, std::vector<std::uint8_t>> entry;
+        entry.first = i * 2;
+        for (int j = 0; j < 100; j++){
+            entry.second.push_back(i % 255);
+        }
+        entries.push_back(entry);
+    }
+
+    // Copy of the database. We use this at the end to make sure we retrieved
+    // the correct element.
+    auto entries_copy = entries;
+
+
+    // Initialize PIR Server
+    cout << "Main: Initializing server and client" << endl;
+    keyword_pir_server server(parms, pir_params);
+
+    // Initialize PIR client....
+    keyword_pir_client client(parms, pir_params);
+    GaloisKeys galois_keys = client.generate_galois_keys();
+
+    cout << "Main: Setting Galois keys..." << endl;
+    server.set_galois_key(0, galois_keys);
+
+    cout << "Main: Setting up server database" << endl;
+    server.set_database(entries);
+
+    cout << "Main: Registering hash functions" << endl;
+    client.set_hashes(server.get_hashes());
+
+    cout << "Main: Client generates query" <<endl;
+    auto query = client.generate_query(4);
+
+    cout << "Main: Server processes query" <<endl;
+    SecretKey sk = client.get_decryptor();
+    auto response = server.generate_reply(query, 0, sk);
+
+    client.decrypt_result(response);
+
 }

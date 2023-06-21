@@ -79,6 +79,31 @@ void gen_params(uint64_t ele_num, uint64_t ele_size, uint32_t N, uint64_t logt,
 }
 
 
+void gen_keyword_params(uint64_t ele_num, uint64_t ele_size, uint32_t N, uint64_t plaintext_num, uint64_t logt,
+                PirParams &pir_params) {
+
+    // Determine the maximum size of each dimension
+    // plain modulus = a power of 2 plus 1
+    uint64_t plain_mod = (static_cast<uint64_t>(1) << logt) + 1;
+
+#ifdef DEBUG
+    cout << "log(plain mod) before expand = " << logt << endl;
+    cout << "number of FV plaintexts = " << plaintext_num << endl;
+#endif
+
+    vector<uint64_t> nvec = get_dimensions(plaintext_num, 2);
+
+    pir_params.d = nvec.size();
+    pir_params.dbc = 6;
+    pir_params.n = plaintext_num;
+    pir_params.nvec = nvec;
+    pir_params.expansion_ratio = 0; // because one ciphertext = two polys
+    pir_params.gsw_base= 16;
+    pir_params.plain_base= 30;
+    pir_params.secret_base= 16;
+    pir_params.gsw_decomp_size= 5;
+
+}
 
 
 

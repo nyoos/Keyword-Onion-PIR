@@ -3,8 +3,11 @@ project(onionpir VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
-find_package(SEAL 3.5.1 EXACT REQUIRED PATHS /usr/local/lib/libseal-3.5.a)
-include_directories("/usr/local/include")
+set(CMAKE_PREFIX_PATH /home/nyoos/Documents/research/pir/seal-3.5.1-lib)
+set(CMAKE_PREFIX_PATH /home/nyoos/Documents/research/pir/nfllib)
+
+find_package(SEAL 3.5.1 EXACT REQUIRED PATHS /home/nyoos/Documents/research/pir/seal-3.5.1-lib)
+include_directories("/home/nyoos/Documents/research/pir/nfllib/include")
 
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -39,10 +42,10 @@ if(NFL_OPTIMIZED)
 endif()
 
 
-add_executable(onionpir main.cpp external_prod.h external_prod.cpp waksman.h waksman.cpp util.h  pir_server.h pir_server.cpp pir.cpp pir.h pir_client.cpp pir_client.h)
+add_executable(onionpir main.cpp external_prod.h external_prod.cpp waksman.h waksman.cpp util.h  pir_server.h pir_server.cpp pir.cpp pir.h pir_client.cpp pir_client.h cuckoo.h cuckoo.cpp keyword_pir_client.h keyword_pir_server.h keyword_pir_server.cpp)
 
 target_link_libraries(onionpir PRIVATE SEAL::seal)
 #for mac
 #target_link_libraries(external_prod PRIVATE /usr/local/lib/libnfllib.dylib)
 
-target_link_libraries(onionpir PRIVATE /usr/local/lib/libnfllib_static.a)
+target_link_libraries(onionpir PRIVATE /home/nyoos/Documents/research/pir/nfllib/lib/libnfllib_static.a)

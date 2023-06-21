@@ -1,6 +1,7 @@
 //
 // Created by Haris Mughees on 4/21/21.
 //
+#pragma once
 
 #include "external_prod.h"
 #include "pir.h"
@@ -31,7 +32,7 @@ public:
     void set_enc_sk(GSWCiphertext sk_enc);
 
     void preprocess_database();
-private:
+protected:
     seal::EncryptionParameters params_; // SEAL parameters
     PirParams pir_params_;// PIR parameters
     parms_id_type parms_id_;
